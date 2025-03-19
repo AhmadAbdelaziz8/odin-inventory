@@ -1,5 +1,5 @@
 // src/dummyData.ts
-import pool from "./db";
+import pool from "./config/db";
 
 const createDummyData = async () => {
   try {
