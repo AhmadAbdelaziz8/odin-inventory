@@ -1,6 +1,7 @@
 // src/App.tsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
 import SwordList from "./components/SwordList";
 import SwordForm from "./components/SwordForm";
 // Import SwordDetail when created
@@ -8,15 +9,13 @@ import SwordForm from "./components/SwordForm";
 const App: React.FC = () => {
   return (
     <Router>
-      <nav>
-        <Link to="/">Inventory</Link>
-        <Link to="/add">Add Sword</Link>
-      </nav>
-      <Routes>
-        <Route path="/" element={<SwordList />} />
-        <Route path="/add" element={<SwordForm />} />
-        {/* <Route path="/sword/:id" element={<SwordDetail />} /> */}
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<SwordList />} />
+          <Route path="/swords/new" element={<SwordForm />} />
+          <Route path="/swords/:id/edit" element={<SwordForm />} />
+        </Routes>
+      </Layout>
     </Router>
   );
 };
