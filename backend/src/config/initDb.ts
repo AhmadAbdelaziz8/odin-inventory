@@ -1,25 +1,35 @@
-import fs from 'fs';
-import path from 'path';
-import pool from './db';
+import fs from "fs";
+import path from "path";
+import pool from "./db";
 
 async function initializeDatabase() {
   try {
-    // Read SQL schema
-    const schemaPath = path.join(__dirname, 'schema.sql');
-    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-    
-    // Execute the SQL
+    // Drop existing tables if they exist
     const client = await pool.connect();
+    await client.query(`
+      DROP TABLE IF EXISTS sword_materials CASCADE;
+      DROP TABLE IF EXISTS swords CASCADE;
+      DROP TABLE IF EXISTS categories CASCADE;
+      DROP TABLE IF EXISTS materials CASCADE;
+      DROP TABLE IF EXISTS origins CASCADE;
+      DROP TABLE IF EXISTS admin_auth CASCADE;
+    `);
+
+    // Read SQL schema
+    const schemaPath = path.join(__dirname, "schema.sql");
+    const schemaSql = fs.readFileSync(schemaPath, "utf8");
+
+    // Execute the SQL
     await client.query(schemaSql);
-    console.log('Database schema initialized successfully');
-    
+    console.log("Database schema initialized successfully");
+
     // Insert some initial data
     await insertSampleData(client);
-    
+
     client.release();
-    console.log('Database initialized with sample data');
+    console.log("Database initialized with sample data");
   } catch (err) {
-    console.error('Error initializing database:', err);
+    console.error("Error initializing database:", err);
     process.exit(1);
   }
 }
@@ -79,11 +89,12 @@ async function insertSampleData(client: any) {
   `);
 
   // Get the inserted sword IDs
-  const swordIds = swordsResult.rows.map(row => row.id);
+  const swordIds = swordsResult.rows.map((row: { id: number }) => row.id);
 
   // Insert sword-material relationships
   if (swordIds.length >= 3) {
-    await client.query(`
+    await client.query(
+      `
       -- Katana with Tamahagane and Folded Steel
       INSERT INTO sword_materials (sword_id, material_id) VALUES
       ($1, (SELECT id FROM materials WHERE name = 'Tamahagane')),
@@ -94,7 +105,9 @@ async function insertSampleData(client: any) {
       
       -- Rapier with Steel
       ($3, (SELECT id FROM materials WHERE name = 'Steel'));
-    `, [swordIds[0], swordIds[1], swordIds[2]]);
+    `,
+      [swordIds[0], swordIds[1], swordIds[2]]
+    );
   }
 
   // Insert admin password (for example purposes, using 'admin123')
