@@ -7,6 +7,7 @@ export interface Material {
 }
 
 const API_URL = "/api";
+const ADMIN_PASSWORD = "admin123"; // In a real app, this would be stored securely
 
 export const getMaterials = async (): Promise<Material[]> => {
   const response = await fetch(`${API_URL}/materials`);
@@ -32,7 +33,10 @@ export const createMaterial = async (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(material),
+    body: JSON.stringify({
+      ...material,
+      adminPassword: ADMIN_PASSWORD,
+    }),
   });
   if (!response.ok) {
     throw new Error("Failed to create material");
@@ -49,7 +53,10 @@ export const updateMaterial = async (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(material),
+    body: JSON.stringify({
+      ...material,
+      adminPassword: ADMIN_PASSWORD,
+    }),
   });
   if (!response.ok) {
     throw new Error("Failed to update material");
@@ -60,6 +67,10 @@ export const updateMaterial = async (
 export const deleteMaterial = async (id: number): Promise<void> => {
   const response = await fetch(`${API_URL}/materials/${id}`, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ adminPassword: ADMIN_PASSWORD }),
   });
   if (!response.ok) {
     throw new Error("Failed to delete material");
